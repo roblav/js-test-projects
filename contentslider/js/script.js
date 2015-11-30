@@ -2,7 +2,7 @@ $(document).ready(function(){
     //alert('Hello');
 
     var speed = 500;
-    var autoSwitch = true;
+    var autoSwitch = false;
     var autoSwitchSpeed = 4000;
 
     //Add an active class to the currently active slide

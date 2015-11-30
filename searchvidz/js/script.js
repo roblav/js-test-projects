@@ -45,18 +45,21 @@ function search() {
     $('#results').html('');
     $('#buttons').html('');
 
-    var q = $('#query').val();
+    q = $('#query').val();
     var APIKEY = "AIzaSyC2U3dqp1ju5mla4OifxWQa3kgsBzmjku4";
 
     $.get(
         "https://www.googleapis.com/youtube/v3/search", {
-            part: "snippet",
+            part: "snippet, id",
             q: q,
             type: "video",
             key: APIKEY
         },
         function(data){
-            console.log(data['items']);
+            var nextPageToken = data.nextPageToken;
+            var prevPageToken = data.prevPageToken;
+
+            console.log(data);
 
             //Display items as <li>
 
@@ -87,7 +90,134 @@ function search() {
                     return content;
                 });
             });
+
+            //Display buttons
+
+            var buttons = getButtons(nextPageToken, prevPageToken);
+            $('#buttons').append(buttons);
+
         }
     );
 
+}
+
+//build the buttons
+
+function getButtons(nextPageToken, prevPageToken){
+    if(!prevPageToken){
+        var btnoutput = '<div class="button-container">'+
+            '<button id="next-button" class="paging-button" data-token="'+
+            nextPageToken+'" data-query="'+q+'" onclick="next();">Next Page</button></div>'
+    }else{
+        var btnoutput = '<div class="button-container">'+
+            '<button id="prev-button" class="paging-button" data-token="'+
+            prevPageToken+'" data-query="'+q+'" onclick="prev()">Prev Page</button></div>'+
+            '<button id="next-button" class="paging-button" data-token="'+
+            nextPageToken+'" data-query="'+q+'" onclick="next()">Next Page</button></div>'
+    }
+
+    return btnoutput;
+
+}
+
+function next(){
+
+    var token = $('#next-button').data("token");
+    var q = $('#next-button').data("query");
+
+    //Clear results
+    $('#results').html('');
+    $('#buttons').html('');
+
+
+    //var q = 'Bob';
+
+    var APIKEY = "AIzaSyC2U3dqp1ju5mla4OifxWQa3kgsBzmjku4";
+
+    $.get(
+        "https://www.googleapis.com/youtube/v3/search", {
+            part: "snippet, id",
+            q: q,
+            pageToken: token,
+            type: "video",
+            key: APIKEY
+        },
+        function(data){
+            var nextPageToken = data.nextPageToken;
+            var prevPageToken = data.prevPageToken;
+
+            console.log(data);
+
+            $.each(data['items'], function(i, item){
+                //Get Output
+                $('#results').append(function(){
+
+                    var content ;
+                    content = "<li>";
+                    content += "<img src='" + item['snippet']['thumbnails']['default'].url + "'>";
+                    content += "<h3>" + item['snippet']['title'] + "</h3>";
+                    content += "<p>" + item['snippet']['description'] + "</p>";
+                    content += "</li>"
+                    return content;
+                });
+            });
+
+            //Display buttons
+
+            var buttons = getButtons(nextPageToken, prevPageToken);
+            $('#buttons').append(buttons);
+
+        }
+    );
+}
+
+function prev(){
+
+    var token = $('#prev-button').data("token");
+    var q = $('#prev-button').data("query");
+
+    //Clear results
+    $('#results').html('');
+    $('#buttons').html('');
+
+
+    //var q = 'Bob';
+
+    var APIKEY = "AIzaSyC2U3dqp1ju5mla4OifxWQa3kgsBzmjku4";
+
+    $.get(
+        "https://www.googleapis.com/youtube/v3/search", {
+            part: "snippet, id",
+            q: q,
+            pageToken: token,
+            type: "video",
+            key: APIKEY
+        },
+        function(data){
+            var nextPageToken = data.nextPageToken;
+            var prevPageToken = data.prevPageToken;
+
+            console.log(data);
+
+            $.each(data['items'], function(i, item){
+                //Get Output
+                $('#results').append(function(){
+
+                    var content ;
+                    content = "<li>";
+                    content += "<img src='" + item['snippet']['thumbnails']['default'].url + "'>";
+                    content += "<h3>" + item['snippet']['title'] + "</h3>";
+                    content += "<p>" + item['snippet']['description'] + "</p>";
+                    content += "</li>"
+                    return content;
+                });
+            });
+
+            //Display buttons
+
+            var buttons = getButtons(nextPageToken, prevPageToken);
+            $('#buttons').append(buttons);
+
+        }
+    );
 }
